@@ -152,8 +152,7 @@ const Bank = () => {
     const listItem = (
       <li key={index}>
         {item.date.getDate()}/{item.date.getMonth() + 1}/
-        {item.date.getFullYear()} - {item.type}: ${item.amount} Balance: $
-        {newBalance}
+        {item.date.getFullYear()} - {item.type}: ${item.amount}
       </li>
     );
 
