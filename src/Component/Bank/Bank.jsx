@@ -141,21 +141,26 @@ const Bank = () => {
               <p className="font-bold text-center mb-6 text-2xl">
                 Your Transaction History
               </p>
-              <ul className="text-center">
-                {transec.map((item, index) => {
-                  const balance =
-                    item.type === "Deposit"
-                      ? currentBlc + item.amount
-                      : currentBlc - item.amount;
-                  return (
-                    <li key={index}>
-                      {item.date.getDate()}/{item.date.getMonth() + 1}/
-                      {item.date.getFullYear()} - {item.type}: ${item.amount}{" "}
-                      Balance: ${balance}
-                    </li>
-                  );
-                })}
-              </ul>
+              <ul>
+  {transec.reverse().reduce((acc, item, index) => {
+    // Calculate the new balance after the current transaction
+    const newBalance = item.type === "Deposit"
+      ? acc.balance + item.amount
+      : acc.balance - item.amount;
+
+    // Create a new list item for the transaction with the updated balance
+    const listItem = (
+      <li key={index}>
+        {item.date.getDate()}/{item.date.getMonth() + 1}/
+        {item.date.getFullYear()} - {item.type}: ${item.amount} Balance: $
+        {newBalance}
+      </li>
+    );
+
+    // Return the accumulated list of items and the updated balance
+    return { items: [...acc.items, listItem], balance: newBalance };
+  }, { items: [], balance: 0 }).items}
+</ul>
             </div>
           )}
         </div>
