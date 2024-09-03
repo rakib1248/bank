@@ -6,6 +6,8 @@ const Bank = () => {
   const [currentBlc, setcurrentBlc] = useState(0);
   const [addInput, setaddInput] = useState("");
   const [withdInput, setwithdInput] = useState("");
+  const [transec, settransec] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   const handlechanghAddInput = (e) => {
     setaddInput(e.target.value);
@@ -13,105 +15,81 @@ const Bank = () => {
   const handlechanghwithdInput = (e) => {
     setwithdInput(e.target.value);
   };
+
   const handleAddmoney = () => {
     const inpuAmount = Number(addInput);
-    if (addInput >= 50) {
-      setcurrentBlc((prevstate) => {
-        return prevstate + inpuAmount;
-      });
+    if (inpuAmount >= 50) {
+      setcurrentBlc((prevstate) => prevstate + inpuAmount);
       Swal.fire({
         position: "top-center",
         icon: "success",
-        title: "successfully amound added",
+        title: "Successfully added amount",
         showConfirmButton: false,
         timer: 2000,
       });
-
+      settransec((prevTrans) => [
+        ...prevTrans,
+        { type: "Deposit", amount: inpuAmount, date: new Date() },
+      ]);
       setaddInput("");
     } else {
-      toast.error("Minimum amount to add is 50 !", {
+      toast.error("Minimum amount to add is 50!", {
         position: "top-center",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
         theme: "light",
         transition: Bounce,
       });
-      // alert("Minimum amount to add is 50!");
     }
   };
+
   const handlewithmoney = () => {
     const inpuAmount = Number(withdInput);
-
     if (inpuAmount < 50) {
-      toast.error("Minimum withdrawal amount is 50 !", {
+      toast.error("Minimum withdrawal amount is 50!", {
         position: "top-center",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
         theme: "light",
         transition: Bounce,
       });
     } else if (inpuAmount > currentBlc) {
-      toast.warn("Insufficient balance !", {
+      toast.warn("Insufficient balance!", {
         position: "top-center",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
         theme: "light",
         transition: Bounce,
       });
     } else {
-      setcurrentBlc((prevstate) => {
-        return prevstate - inpuAmount;
-      });
+      setcurrentBlc((prevstate) => prevstate - inpuAmount);
       Swal.fire({
         position: "top-center",
         icon: "success",
-        title: "successfully amount Withdraw",
+        title: "Successfully withdrew amount",
         showConfirmButton: false,
         timer: 2000,
       });
+      settransec((prevTrans) => [
+        ...prevTrans,
+        { type: "Withdrawal", amount: inpuAmount, date: new Date() },
+      ]);
       setwithdInput("");
     }
   };
 
-  const handletransection = ()=>{
-    Swal.fire({
-      title: "Developers are working on transaction history and will see you soon",
-      width: 600,
-      padding: "3em",
-      color: "#716add",
-      background: "#fff url(/images/trees.png)",
-      backdrop: `
-        rgba(0,0,123,0.4)
-        url("/images/nyan-cat.gif")
-        left top
-        no-repeat
-      `
-    });
-  }
+  const toggleHistory = () => {
+    setShowHistory((prev) => !prev);
+  };
 
   return (
     <>
       <ToastContainer />
-      <div className="h-screen flex justify-center items-center bg[#f3f4f6]">
+      <div className="h-screen flex justify-center items-center bg-[#f3f4f6]">
         <div className="bg-white p-5 shadow-lg">
           <h1 className="font-bold text-2xl text-center pt-3">Flower Bank</h1>
-          <p className="text[#e9e9e9] text-lg text-center">
+          <p className="text-[#000] text-lg text-center">
             Current Balance: ${currentBlc}
           </p>
 
-          {/* add money */}
+          {/* Add Money */}
           <div className="w-96 mb-7">
             <h4>Add Money</h4>
             <input
@@ -128,7 +106,8 @@ const Bank = () => {
               Add Money
             </button>
           </div>
-          {/* add money */}
+
+          {/* Withdraw Money */}
           <div className="w-96 mb-7">
             <h4>Withdraw Money</h4>
             <input
@@ -145,12 +124,40 @@ const Bank = () => {
               Withdraw Money
             </button>
           </div>
-          {/* chack history */}
+
+          {/* View Transaction History */}
           <div className="text-center">
-            <button onClick={handletransection} className="bg-[#3b82f6] text-white w-auto py-2 px-4 rounded ">
-              View Transaction History
+            <button
+              onClick={toggleHistory}
+              className="bg-[#3b82f6] text-white w-auto py-2 px-4 rounded"
+            >
+              {showHistory ? "Hide" : "View"} Transaction History
             </button>
           </div>
+
+          {/* Transaction History */}
+          {showHistory && (
+            <div className="mt-5">
+              <p className="font-bold text-center mb-6 text-2xl">
+                Your Transaction History
+              </p>
+              <ul className="text-center">
+                {transec.map((item, index) => {
+                  const balance =
+                    item.type === "Deposit"
+                      ? currentBlc + item.amount
+                      : currentBlc - item.amount;
+                  return (
+                    <li key={index}>
+                      {item.date.getDate()}/{item.date.getMonth() + 1}/
+                      {item.date.getFullYear()} - {item.type}: ${item.amount}{" "}
+                      Balance: ${balance}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </>
